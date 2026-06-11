@@ -1,5 +1,5 @@
-from pydantic import BaseModel, ConfigDict
 from datetime import date
+from pydantic import BaseModel, ConfigDict
 
 
 class ExpenseCreate(BaseModel):
@@ -10,10 +10,10 @@ class ExpenseCreate(BaseModel):
 
 
 class ExpenseResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
     id: int
     title: str
     amount: float
     category: str
     expense_date: date
-
-    model_config = ConfigDict(from_attributes=True)

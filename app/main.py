@@ -1,20 +1,20 @@
 from fastapi import FastAPI, Depends, HTTPException
 from sqlalchemy.orm import Session
-
 from app.database import SessionLocal, engine
 from app import models, schemas, crud
-from app.aws_lambda import export_expenses_to_s3
 
-# Creating tables
 models.Base.metadata.create_all(bind=engine)
 
-app = FastAPI(
-    title="Expense Tracker API"
-)
+app = FastAPI(title="Expense Tracker API")
 
 
-# Dependency
 def get_db():
+    """
+    Create and provide a database session for each API request.
+
+    Yields:
+        A SQLAlchemy database session.
+    """
     db = SessionLocal()
     try:
         yield db
@@ -23,7 +23,13 @@ def get_db():
 
 
 @app.get("/")
-def home():
+def home() -> dict:
+    """
+    Return a health check message for the API.
+
+    Returns:
+        A dictionary confirming that the API is running.
+    """
     return {"message": "Expense Tracker API is running!"}
 
 
@@ -32,11 +38,30 @@ def add_expense(
     expense: schemas.ExpenseCreate,
     db: Session = Depends(get_db)
 ):
+    """
+    Create a new expense using request body data.
+
+    Args:
+        expense: Validated expense data from the request body.
+        db: Active SQLAlchemy database session.
+
+    Returns:
+        The newly created expense record.
+    """
     return crud.create_expense(db, expense)
 
 
 @app.get("/expenses", response_model=list[schemas.ExpenseResponse])
 def read_expenses(db: Session = Depends(get_db)):
+    """
+    Retrieve all expenses from the database.
+
+    Args:
+        db: Active SQLAlchemy database session.
+
+    Returns:
+        A list of expense records.
+    """
     return crud.get_expenses(db)
 
 
@@ -45,35 +70,22 @@ def remove_expense(
     expense_id: int,
     db: Session = Depends(get_db)
 ):
+    """
+    Delete an expense by its ID.
+
+    Args:
+        expense_id: ID of the expense to delete.
+        db: Active SQLAlchemy database session.
+
+    Returns:
+        A success message if the expense is deleted.
+
+    Raises:
+        HTTPException: If the expense is not found.
+    """
     deleted = crud.delete_expense(db, expense_id)
 
     if deleted is None:
-        raise HTTPException(
-            status_code=404,
-            detail="Expense not found"
-        )
+        raise HTTPException(status_code=404, detail="Expense not found")
 
     return {"message": "Expense deleted successfully"}
-
-
-@app.get("/expenses/export")
-def export_expenses(db: Session = Depends(get_db)):
-    expenses = crud.get_expenses(db)
-
-    expense_list = []
-
-    for expense in expenses:
-        expense_list.append({
-            "id": expense.id,
-            "title": expense.title,
-            "amount": expense.amount,
-            "category": expense.category,
-            "expense_date": str(expense.expense_date)
-        })
-
-    lambda_response = export_expenses_to_s3(expense_list)
-
-    return {
-        "message": "Expenses exported successfully",
-        "lambda_response": lambda_response
-    }
