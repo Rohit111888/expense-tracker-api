@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 
 from app.database import SessionLocal, engine
 from app import models, schemas, crud
+from app.aws_lambda import export_expenses_to_s3
 
 # Creating tables
 models.Base.metadata.create_all(bind=engine)
@@ -53,3 +54,26 @@ def remove_expense(
         )
 
     return {"message": "Expense deleted successfully"}
+
+
+@app.get("/expenses/export")
+def export_expenses(db: Session = Depends(get_db)):
+    expenses = crud.get_expenses(db)
+
+    expense_list = []
+
+    for expense in expenses:
+        expense_list.append({
+            "id": expense.id,
+            "title": expense.title,
+            "amount": expense.amount,
+            "category": expense.category,
+            "expense_date": str(expense.expense_date)
+        })
+
+    lambda_response = export_expenses_to_s3(expense_list)
+
+    return {
+        "message": "Expenses exported successfully",
+        "lambda_response": lambda_response
+    }
