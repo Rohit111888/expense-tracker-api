@@ -6,43 +6,44 @@ A Dockerized REST API built with **FastAPI**, **PostgreSQL**, and **SQLAlchemy**
 
 ## Tech Stack
 
-- FastAPI
-- Pydantic v2
-- PostgreSQL
-- SQLAlchemy
-- Docker & Docker Compose
-- Pytest
-- AWS Lambda
-- Amazon S3
+* FastAPI
+* Pydantic v2
+* PostgreSQL
+* SQLAlchemy
+* Docker & Docker Compose
+* Pytest
+* AWS Lambda
+* Amazon S3
 
 ---
 
 ## Features
 
-- Create a new expense
-- View all expenses
-- Delete an expense
-- PostgreSQL database integration using SQLAlchemy
-- Dockerized application
-- Automated API testing with Pytest
-- AWS Lambda function that reads data from an S3 bucket
+* Create a new expense
+* Retrieve all expenses
+* Delete an expense
+* Health check endpoint
+* PostgreSQL integration using SQLAlchemy ORM
+* Dockerized deployment
+* Automated API testing with Pytest
+* AWS Lambda function that reads data from Amazon S3
 
 ---
 
 ## API Endpoints
 
-| Method | Endpoint | Description |
-|----------|------------|--------------------------|
-| GET | `/` | Health check |
-| POST | `/expenses` | Create a new expense |
-| GET | `/expenses` | Retrieve all expenses |
-| DELETE | `/expenses/{expense_id}` | Delete an expense |
+| Method | Endpoint                 | Description           |
+| ------ | ------------------------ | --------------------- |
+| GET    | `/`                      | Health check          |
+| POST   | `/expenses`              | Create a new expense  |
+| GET    | `/expenses`              | Retrieve all expenses |
+| DELETE | `/expenses/{expense_id}` | Delete an expense     |
 
 ---
 
 ## Project Structure
 
-```
+```text
 expense-tracker-api/
 │
 ├── app/
@@ -50,7 +51,11 @@ expense-tracker-api/
 │   ├── database.py
 │   ├── main.py
 │   ├── models.py
-│   └── schemas.py
+│   ├── schemas.py
+│   └── aws_lambda.py
+│
+├── lambda_s3/
+│   └── lambda_function.py
 │
 ├── tests/
 │   └── test_main.py
@@ -66,16 +71,9 @@ expense-tracker-api/
 
 ## Installation
 
-Clone the repository:
-
 ```bash
 git clone https://github.com/Rohit111888/expense-tracker-api.git
 cd expense-tracker-api
-```
-
-Install dependencies:
-
-```bash
 pip install -r requirements.txt
 ```
 
@@ -83,19 +81,17 @@ pip install -r requirements.txt
 
 ## Running with Docker
 
-Build and start the application:
-
 ```bash
 docker compose up --build
 ```
 
-The API will be available at:
+API:
 
 ```
 http://localhost:8000
 ```
 
-Swagger documentation:
+Swagger UI:
 
 ```
 http://localhost:8000/docs
@@ -109,7 +105,7 @@ http://localhost:8000/docs
 pytest -v
 ```
 
-Example output:
+Example:
 
 ```
 ==========================
@@ -121,9 +117,9 @@ Example output:
 
 ## Database
 
-The project uses PostgreSQL connected through SQLAlchemy.
+The application uses PostgreSQL connected through SQLAlchemy.
 
-Connection is configured using an environment variable:
+Example:
 
 ```
 DATABASE_URL=postgresql://postgres:password@localhost:5432/expense_db
@@ -131,17 +127,17 @@ DATABASE_URL=postgresql://postgres:password@localhost:5432/expense_db
 
 ---
 
-## AWS Lambda + S3
+## AWS Lambda + Amazon S3
 
-An AWS Lambda function is included to demonstrate interaction with Amazon S3.
+This project includes an AWS Lambda function that demonstrates interaction with Amazon S3.
 
 Functionality:
 
-- Connects to an S3 bucket
-- Reads a text file
-- Returns its contents as a JSON response
+* Connects to an S3 bucket
+* Reads a text file
+* Returns the file contents as a JSON response
 
-Example response:
+Example:
 
 ```json
 {
@@ -154,11 +150,22 @@ Example response:
 
 ## SQL
 
-Sample SQL queries are provided in:
+Sample SQL queries are available in:
 
 ```
 queries.sql
 ```
+
+---
+
+## Screenshots
+
+* FastAPI Swagger UI
+* Dockerized application
+* Pytest execution
+* AWS Lambda deployment
+* Lambda execution
+* Amazon S3 bucket
 
 ---
 
